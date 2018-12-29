@@ -1,0 +1,29 @@
+---
+# tasks file for wiringpi
+
+- name: Vérification de la présence du package wiringpi
+  stat:
+    path: /home/{{ users_name }}/wiringPi
+  register: wiringpi_result_package
+  when: ansible_lsb.id == 'Raspbian'
+
+- name: Effacement de l'ancien package
+  file: 
+    path: /home/{{ users_name }}/wiringPi
+    state: absent
+  when: 
+    - wiringpi_result_package.stat.exists
+    - ansible_lsb.id == 'Raspbian'
+
+- name: Téléchargement de wiringpi
+  git:
+    repo: 'https://github.com/skulblaka24/wiringPi' # My copy # 'git://git.drogon.net/wiringPi' # Official
+    dest: /home/{{ users_name }}/wiringpi
+    clone: yes
+  when: ansible_lsb.id == 'Raspbian'
+
+- name: Configuration de wiringpi
+  shell: cd /home/{{ users_name }}/wiringpi/ && sh ./build
+  when: ansible_lsb.id == 'Raspbian'
+
+...
